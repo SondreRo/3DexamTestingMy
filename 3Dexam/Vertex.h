@@ -83,7 +83,5 @@ struct Vertex
 		Color[0] = colR;
 		Color[1] = colG;
 		Color[2] = colB;
-
-	
 	}
 };

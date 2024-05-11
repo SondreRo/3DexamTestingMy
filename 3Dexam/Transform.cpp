@@ -56,6 +56,21 @@ void Transform::SetRotation(glm::vec3 inRotation)
     Roll = inRotation[2];
 }
 
+void Transform::SetLocationX(float inX)
+{
+    Location.x = inX;
+}
+
+void Transform::SetLocationY(float inY)
+{
+    Location.y = inY;
+}
+
+void Transform::SetLocationZ(float inZ)
+{
+    Location.z = inZ;
+}
+
 void Transform::AddLocation(glm::vec3 inLocation)
 {
     Location += inLocation;

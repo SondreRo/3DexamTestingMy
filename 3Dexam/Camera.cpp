@@ -22,6 +22,8 @@ void Camera::RecalculateDirections()
 
 void Camera::RenderFromCamera(Shader shader_program, int winHeight, int winWidth)
 {
+    if (!IsActive) return;
+
     RecalculateDirections();
     
 	glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -52,6 +54,7 @@ void Camera::RenderFromCamera(Shader shader_program, int winHeight, int winWidth
 
 void Camera::processInput(GLFWwindow* window, float dt)
 {
+    if (!IsActive) return;
 
     float calcspeed = cameraSpeed * dt; // adjust accordingly
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -78,6 +81,8 @@ void Camera::processInput(GLFWwindow* window, float dt)
 
 void Camera::mouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
+    if (!IsActive) return;
+
     if (!UseCamera)
     {
         return;

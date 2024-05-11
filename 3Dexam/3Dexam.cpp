@@ -9,7 +9,9 @@
 
 #include "MeshGenerator.h"
 #include "Camera.h"
+#include "Collision.h"
 #include "glm/glm.hpp"
+#include "Player.h"
 
 void SetupCallbacks(GLFWwindow* window);
 // CALLBACKS
@@ -30,20 +32,8 @@ std::string vfs = ShaderLoader::LoadShaderFromFile("Triangle.vs");
 std::string fs = ShaderLoader::LoadShaderFromFile("Triangle.fs");
 
 Camera myCamera;
+Player* CurrentPlayer;
 
-//std::vector<Mesh*> meshes;
-std::unordered_map<std::string, Mesh*> meshes;
-static Mesh* GetMesh(std::string name)
-{
-	if (meshes.count(name) > 0)
-	{
-        return meshes[name];
-	}
-    else
-    {
-        return nullptr;
-    }
-}
 
 float deltaTime = 0;
 float lastFrame = 0;
@@ -85,15 +75,21 @@ int main()
     // build and compile our shader program
     // ------------------------------------
     Shader ourShader("Triangle.vs", "Triangle.fs"); // you can name your shader files however you like
-    
+
+    Player* myPlayer = new Player();
+    meshes["Player"] = myPlayer;
+    MeshGenerator::GenerateBox(myPlayer, glm::vec3(1));
+    CurrentPlayer = myPlayer;
+
     LandscapeMesh* m_Landscape = new LandscapeMesh();
     meshes["Landscape"] = m_Landscape;
-    MeshGenerator::GenerateLandscape(m_Landscape, 500, 500, 0.25f);
+    MeshGenerator::GenerateLandscape(m_Landscape, 100, 100, 0.5f);
     
 
     Mesh* m_Cube = new Mesh();
     meshes["Cube"] = m_Cube;
     MeshGenerator::GenerateBox(m_Cube, glm::vec3(1));
+    m_Cube->transform.SetLocation(glm::vec3(5, 1, 5));
 
 
     for (auto& mesh : meshes)
@@ -114,9 +110,10 @@ int main()
         // -----
         processInput(window);
 
-        glm::vec3 test = BarycentricCalculations::Calculate(m_Landscape, myCamera.cameraPos);
-        std::cout << "Height: " << test.x << " " << test.y << " " << test.z << std::endl;
-        std::vector<float> myVec(10);
+      
+
+      
+        //std::cout << "Height: " << test.x << " " << test.y << " " << test.z << std::endl;
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -124,15 +121,39 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
 
 
-        //m_Landscape->GetTriangle(myCamera.cameraPos);
 
+        if (myPlayer)
+        {
+            if (myPlayer->UpdateMovement(deltaTime))
+            {
+                glm::vec3 CubeOffsett = glm::vec3(0, -1, 0);
+                glm::vec3 FoundCoords = myPlayer->transform.GetLocation();
+            	if (BarycentricCalculations::Calculate(m_Landscape, myPlayer->transform.GetLocation() - CubeOffsett, FoundCoords))
+                    myPlayer->transform.SetLocationY(FoundCoords.y - CubeOffsett.y);
+
+            }
+
+        }
+
+        
         myCamera.RenderFromCamera(ourShader, SCR_HEIGHT, SCR_WIDTH);
+        myPlayer->RenderFromPlayer(ourShader, SCR_HEIGHT, SCR_WIDTH);
 
         for (auto& mesh : meshes)
         {
+           /* if (mesh.first != "Landscape")
+            {
+                if (SphereCollider::CheckCollision(myCamera.cameraPos, 1, mesh.second->transform.GetLocation(), 1))
+                    std::cout << "Collision between cam and " << mesh.first << std::endl;
+            }*/
+            
+
             mesh.second->Draw(ourShader);
         }
-        
+
+        if (AABBCollider::CheckCollision(myPlayer->transform.GetLocation(), glm::vec3(2), m_Cube->transform.GetLocation(), glm::vec3(2)))
+            std::cout << "Collision " << std::endl;
+      
         for (auto& mesh : meshes)
         {
             mesh.second->Draw(ourShader);
@@ -169,7 +190,8 @@ void processInput(GLFWwindow* window)
 
 
     myCamera.processInput(window, deltaTime);
-
+    if (CurrentPlayer)
+        CurrentPlayer->ProcessInput(window);
 
     float Direction = 1;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
@@ -218,18 +240,26 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    if (CurrentPlayer)
+        CurrentPlayer->mouse_callback(window, xpos, ypos);
     myCamera.mouseCallback(window, xpos, ypos);
 }
 
 void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    if (CurrentPlayer)
+        CurrentPlayer->MouseButtonCallback(window, button, action, mods);
     myCamera.MouseButtonCallback(window, button, action, mods);
 }
 
 
 bool UseWireframe = false;
+bool UsePlayer = true;
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    if (CurrentPlayer)
+        CurrentPlayer->KeyCallback(window, key, scancode, action, mods);
+
 	if (key == GLFW_KEY_T && action == GLFW_PRESS)
     {
 	    if(UseWireframe)
@@ -244,10 +274,36 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
     }
 
-    
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
+    {
+        if (CurrentPlayer != nullptr)
+        {
+            if (UsePlayer)
+            {
+                UsePlayer = false;
+                CurrentPlayer->IsActive = false;
+                myCamera.IsActive = true;
+            }
+            else
+            {
+                UsePlayer = true;
+                CurrentPlayer->IsActive = true;
+                myCamera.IsActive = false;
+            }
+
+            std::cout << "CurrentPlayer: " << CurrentPlayer->IsActive << std::endl;
+            std::cout << "myCamera: " << myCamera.IsActive << std::endl;
+        }
+       
+    }
 }
 
 void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    myCamera.cameraSpeed += yoffset;
+	float newSpeed = myCamera.cameraSpeed + yoffset;
+    newSpeed = glm::clamp(newSpeed, 0.f, 10000.f);
+    myCamera.cameraSpeed = newSpeed;
+
+    if (CurrentPlayer)
+        CurrentPlayer->MouseScrollCallback(window, xoffset, yoffset);
 }

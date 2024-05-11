@@ -10,7 +10,7 @@ class Mesh
 {
 	unsigned int VBO{ 0 }, VAO{ 0 }, EBO { 0 };
 
-
+	
 public:
 
 	Transform transform;
@@ -20,6 +20,8 @@ public:
 
 	void Bind();
 	void Draw(Shader shader);
+
+	Shader shader;
 
 	void Cleanup();
 };

@@ -62,7 +62,6 @@ void MeshGenerator::GenerateBox(Mesh* inMesh, glm::vec3 Size)
 	inMesh->triangles.emplace_back(5, 4, 1);
 	inMesh->triangles.emplace_back(1, 0, 5);
 
-
 }
 
 void MeshGenerator::GenerateLandscape(LandscapeMesh* inMesh, int xCount, int zCount, float stepSize)

@@ -16,6 +16,10 @@ struct Transform
 	void SetScale(glm::vec3 inScale);
 	void SetRotation(glm::vec3 inRotation);
 
+	void SetLocationX(float inX);
+	void SetLocationY(float inY);
+	void SetLocationZ(float inZ);
+
 	// Adders
 	void AddLocation(glm::vec3 inLocation);
 	void AddScale(glm::vec3 inScale);

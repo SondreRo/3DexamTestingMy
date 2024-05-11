@@ -24,11 +24,16 @@ void Mesh::Bind()
 
 }
 
-void Mesh::Draw(Shader shader)
+void Mesh::Draw()
 {
-    shader.use();
-   
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "meshMat"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
+    if (!shader)
+    {
+        std::cout << "No shader found for Mesh" << std::endl;
+    	return;
+    }
+    shader->use();
+
+    glUniformMatrix4fv(glGetUniformLocation(shader->ID, "meshMat"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
     glBindVertexArray(VAO);
 
     if (triangles.size() > 0)

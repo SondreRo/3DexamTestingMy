@@ -12,5 +12,8 @@ int LandscapeMesh::GetTriangle(glm::vec3 point)
 	//std::cout << indexX << " " << indexZ << std::endl;
 
 	//std::cout << "Index: " << index << std::endl;
-	return index/3;
+
+
+
+	return index;
 }

@@ -10,5 +10,6 @@ public:
 	static void GenerateBox(Mesh* inMesh, glm::vec3 Size);
 
 	static void GenerateLandscape(LandscapeMesh* inMesh, int xCount, int zCount, float stepSize);
+	
 };
 
