@@ -1,30 +1,33 @@
 #pragma once
-#include "Mesh.h"
 #include "CameraInterface.h"
 #include "ControllerInterface.h"
+#include "glm/glm.hpp"
 
-class GLFWwindow;
-class Player : public Mesh, public CameraInterface, public ControllerInterface
-{
+class Shader;
+struct GLFWwindow;
 
+class EditorCamera : public CameraInterface, public ControllerInterface{
 
-	glm::vec3 MovementVector = glm::vec3(0);
-	glm::vec3 LastLocation = glm::vec3(0);
-
-	float CameraDistance = 5;
 	bool firstMouse = true;
-	float lastX = 0;
-	float lastY = 0;
+	double lastX{ 0 }, lastY{ 0 };
+
+	bool UseCamera = false;
+
+public:
+	EditorCamera();
+	float cameraSpeed = 4;
+	glm::vec3 cameraPos = glm::vec3(3.0f, 0.0f, 5.0f);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight = glm::normalize(glm::cross(cameraUp, cameraFront));
+
 	float yaw = -90;
 	float pitch = 0;
-	glm::vec3 cameraFront = glm::vec3(0, 0, -1);
-	bool UseCamera = false;
-public:
 
-	float MovementSpeed = 5.f;
-	bool UpdateMovement(float DeltaTime);
+	void RecalculateDirections();
 
-	void Tick(float deltaTime) override;
+	void Tick(float deltaTime);
+	glm::vec3 DirectionVector = glm::vec3(0);
 
 	// -- Camera Interface -- //
 	glm::mat4 RenderFromCam(int screenWidth, int screenHeight) override;
@@ -35,5 +38,5 @@ public:
 	void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) override;
 	void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-};
 
+};

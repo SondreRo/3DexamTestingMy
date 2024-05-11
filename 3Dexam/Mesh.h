@@ -1,10 +1,11 @@
 #pragma once
 #include <vector>
 
-#include "Shader.h"
 #include "Transform.h"
 #include "Vertex.h"
 #include "Triangle.h"
+
+class Shader;
 
 class Mesh
 {
@@ -19,9 +20,10 @@ public:
 	std::vector<Triangle> triangles;
 
 	void Bind();
-	void Draw(Shader shader);
+	void Draw(glm::mat4 CamMat);
+	virtual void Tick(float deltaTime);
 
-	Shader shader;
+	Shader* shader;
 
 	void Cleanup();
 };

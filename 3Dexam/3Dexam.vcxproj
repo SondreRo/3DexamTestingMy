@@ -133,7 +133,7 @@
     <ClCompile Include="3Dexam.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BarycentricCalculations.cpp" />
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="EditorCamera.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="LandscapeMesh.cpp" />
@@ -147,7 +147,9 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="BarycentricCalculations.h" />
-    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ControllerInterface.h" />
+    <ClInclude Include="EditorCamera.h" />
+    <ClInclude Include="CameraInterface.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="includes\assimp\Bitmap.h" />
     <ClInclude Include="includes\GLFW\glfw3.h" />

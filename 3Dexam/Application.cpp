@@ -1,10 +1,10 @@
 #include "Application.h"
-
 #include <iostream>
-#include <glad/glad.h>
 
+#include "BarycentricCalculations.h"
 #include "MeshGenerator.h"
-
+#include "Player.h"
+#include "Shader.h"
 
 int Application::Setup()
 {
@@ -26,8 +26,7 @@ int Application::Setup()
     glfwMakeContextCurrent(mWindow);
     glfwSetWindowUserPointer(mWindow, this);
 
-    // Settings
-    glEnable(GL_DEPTH_TEST);
+
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -36,6 +35,9 @@ int Application::Setup()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    // Settings
+    glEnable(GL_DEPTH_TEST);
 
     CallbackSetup();
 
@@ -46,7 +48,7 @@ int Application::Run()
 {
     ShaderSetup();
     MeshSetup();
-
+    MeshBinding();
     // RenderLoop
     RenderLoop();
 
@@ -56,6 +58,9 @@ int Application::Run()
 
 int Application::RenderLoop()
 {
+    editorCamera = new EditorCamera();
+    currentCamera = editorCamera;
+    currentController = editorCamera;
 
     while (!glfwWindowShouldClose(mWindow))
     {
@@ -67,11 +72,33 @@ int Application::RenderLoop()
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
 
+        // Tick EditorCamera
+        editorCamera->Tick(deltaTime);
+
+        // Loop and tick all meshes.
+        for (auto& mesh : mMeshes)
+        {
+            mesh.second->Tick(deltaTime);
+            if (LandscapeMesh* landscape = dynamic_cast<LandscapeMesh*>(mesh.second))
+            {
+	            if (Player* player = dynamic_cast<Player*>(currentController))
+	            {
+                    glm::vec3 FoundLoc = player->transform.GetLocation();
+                    BarycentricCalculations::Calculate(landscape, player->transform.GetLocation() - glm::vec3(0, -1, 0), FoundLoc);
+                    player->transform.SetLocationY(FoundLoc.y + 1);
+	            }
+            }
+        }
+
+        glm::mat4 camMat{ 1 };
+        if (currentCamera) 
+            camMat = currentCamera->RenderFromCam(SCR_WIDTH, SCR_HEIGHT);
 
         // Looping through all meshes and rendering them
         for (auto& mesh : mMeshes)
         {
-            mesh.second->Draw();
+            
+            mesh.second->Draw(camMat);
         }
 
 
@@ -85,7 +112,7 @@ int Application::RenderLoop()
 int Application::Cleanup()
 {
     glfwTerminate();
-
+    return 1;
 }
 
 Mesh* Application::GetMesh(std::string name)
@@ -98,6 +125,16 @@ Mesh* Application::GetMesh(std::string name)
     return nullptr;
 }
 
+Shader* Application::GetShader(std::string name)
+{
+    if (mShaders.count(name) > 0)
+    {
+        return mShaders[name];
+    }
+    std::cout << "GetShader() -- Cant Find shader with name: '" << name << "'\n";
+    return nullptr;
+}
+
 void Application::ShaderSetup()
 {
     mShaders["Default"] = new Shader("Triangle.vs", "Triangle.fs");
@@ -105,13 +142,33 @@ void Application::ShaderSetup()
 
 void Application::MeshSetup()
 {
+
+    // -- Landscape -- //
+    LandscapeMesh* landscape = new LandscapeMesh();
+    landscape->shader = GetShader("Default");
+    MeshGenerator::GenerateLandscape(landscape, 100, 100, 0.25);
+    landscape->transform.SetLocation(glm::vec3(0));
+    mMeshes["landscape"] = landscape;
+
     // -- Cube -- //
-    Mesh* Cube = new Mesh();
-    MeshGenerator::GenerateBox(Cube, glm::vec3(1));
-    Cube->transform.SetLocation(glm::vec3(5, 1, 5));
-    mMeshes["Cube"] = Cube;
+    Mesh* cube = new Mesh();
+    cube->shader = GetShader("Default");
+    MeshGenerator::GenerateBox(cube, glm::vec3(1));
+    cube->transform.SetLocation(glm::vec3(0));
+    mMeshes["cube"] = cube;
 
+    // -- Player -- //
+    Player* player = new Player();
+    player->shader = GetShader("Default");
+    MeshGenerator::GenerateBox(player, glm::vec3(0.5f, 1.f, 0.5f));
+    mMeshes["player"] = player;
 
+    // -- Player2 -- //
+    Player* player2 = new Player();
+    player2->shader = GetShader("Default");
+    MeshGenerator::GenerateBox(player2, glm::vec3(0.5f, 1.f, 0.5f));
+    player2->transform.SetLocation(glm::vec3(5, 0, 0));
+    mMeshes["player2"] = player2;
 
 }
 
@@ -165,26 +222,17 @@ void Application::FramebufferSizeCallback(GLFWwindow* window, int width, int hei
 
 void Application::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    //if (CurrentPlayer)
-    //    CurrentPlayer->mouse_callback(window, xpos, ypos);
-    //myCamera.mouseCallback(window, xpos, ypos);
+    if (currentController) currentController->MouseMoveCallback(window, xpos, ypos);
 }
 
 void Application::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    //if (CurrentPlayer)
-    //    CurrentPlayer->MouseButtonCallback(window, button, action, mods);
-    //myCamera.MouseButtonCallback(window, button, action, mods);
+    if (currentController) currentController->MouseButtonCallback(window, button, action, mods);
 }
 
 void Application::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    //float newSpeed = myCamera.cameraSpeed + yoffset;
-    //newSpeed = glm::clamp(newSpeed, 0.f, 10000.f);
-    //myCamera.cameraSpeed = newSpeed;
-
-    //if (CurrentPlayer)
-    //    CurrentPlayer->MouseScrollCallback(window, xoffset, yoffset);
+    if (currentController) currentController->MouseScrollCallback(window, xoffset, yoffset);
 }
 
 void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -192,10 +240,7 @@ void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int act
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-  /*  if (CurrentPlayer)
-        CurrentPlayer->KeyCallback(window, key, scancode, action, mods);
-
-    if (key == GLFW_KEY_T && action == GLFW_PRESS)
+    if (key == GLFW_KEY_0 && action == GLFW_PRESS)
     {
         if (UseWireframe)
         {
@@ -209,65 +254,42 @@ void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int act
         }
     }
 
-    if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
+
+
+
+
+    if (currentController) currentController->KeyCallback(window, key, scancode, action, mods);
+
+    if (action == GLFW_PRESS)
     {
-        if (CurrentPlayer != nullptr)
-        {
-            if (UsePlayer)
+	    switch (key)
+	    {
+        case (GLFW_KEY_1):
+            currentCamera = editorCamera;
+            currentController = editorCamera;
+            break;
+        case(GLFW_KEY_2):
+            if (Mesh* player = GetMesh("player"))
             {
-                UsePlayer = false;
-                CurrentPlayer->IsActive = false;
-                myCamera.IsActive = true;
+                currentCamera = dynamic_cast<CameraInterface*>(player);
+                currentController = dynamic_cast<ControllerInterface*>(player);
             }
-            else
+			break;
+        case(GLFW_KEY_3):
+            if (Mesh* player = GetMesh("player2"))
             {
-                UsePlayer = true;
-                CurrentPlayer->IsActive = true;
-                myCamera.IsActive = false;
+                currentCamera = dynamic_cast<CameraInterface*>(player);
+                currentController = dynamic_cast<ControllerInterface*>(player);
             }
-
-            std::cout << "CurrentPlayer: " << CurrentPlayer->IsActive << std::endl;
-            std::cout << "myCamera: " << myCamera.IsActive << std::endl;
-        }
-
-    }*/
+            break;
+        
+	    }
+    }
 }
 
 void Application::ProcessInput(GLFWwindow* window)
 {
- 
-  /*  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-
-    myCamera.processInput(window, deltaTime);
-    if (CurrentPlayer)
-        CurrentPlayer->ProcessInput(window);
-
-    float Direction = 1;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        Direction = -1;
-
-
-    if (GetMesh("Landscape"))
-    {
-        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-            GetMesh("Landscape")->transform.AddRotation(glm::vec3(90 * deltaTime * Direction, 0, 0));
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-            GetMesh("Landscape")->transform.AddRotation(glm::vec3(0, 90 * deltaTime * Direction, 0));
-
-        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-            GetMesh("Landscape")->transform.AddRotation(glm::vec3(0, 0, 90 * deltaTime * Direction));
-
-        if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
-            GetMesh("Landscape")->transform.SetRotation(glm::vec3(0, 0, 0));
-    }*/
-
-
-
-
-
-    
+    if (currentController) currentController->ProcessInput(window);
 }
 
 void Application::CalculateDeltaTime()

@@ -57,5 +57,6 @@ bool AABBCollider::CheckDistance(float target, std::vector<float> other)
 
 
 	}
+	return true;
 }
 

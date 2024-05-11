@@ -1,5 +1,5 @@
 #include "MeshGenerator.h"
-
+#include <iostream>
 
 
 float MeshGenerator::Function(float x, float z)

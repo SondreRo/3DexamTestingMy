@@ -1,36 +1,7 @@
 #include "Player.h"
 #include <glm/gtc/type_ptr.hpp>
-
-
-void Player::RenderFromPlayer(Shader shader_program, int winHeight, int winWidth)
-{
-	if (!IsActive) return;
-
-	glm::vec3 cameraPos = transform.GetLocation();
-	glm::mat4 view = glm::lookAt(cameraPos + (CameraDistance * -cameraFront), cameraPos, glm::vec3(0,1,0));
-
-
-	int screenWidth = winWidth;
-	int screenHeight = winHeight;
-
-	float screenWidthf = static_cast<float>(screenWidth);
-	float screenHeightf = static_cast<float>(screenHeight);
-
-	float aspect = screenWidthf / screenHeightf;
-
-	aspect = abs(aspect);
-	//std::cout << aspect << std::endl;
-
-	glm::mat4 projection = glm::perspective(glm::radians(80.f), aspect, 0.1f, 10000.0f);
-
-
-	unsigned int test1 = glGetUniformLocation(shader_program.ID, "view");
-	unsigned int test2 = glGetUniformLocation(shader_program.ID, "projection");
-	unsigned int test3 = glGetUniformLocation(shader_program.ID, "viewPos");
-	glUniformMatrix4fv(test1, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(test2, 1, GL_FALSE, glm::value_ptr(projection));
-	glUniform3fv(test3, 1, glm::value_ptr(cameraPos));
-}
+#include <glm/glm.hpp>
+#include "Shader.h"
 
 bool Player::UpdateMovement(float DeltaTime)
 {
@@ -50,15 +21,37 @@ bool Player::UpdateMovement(float DeltaTime)
 
 }
 
+void Player::Tick(float deltaTime)
+{
+	Mesh::Tick(deltaTime);
+	UpdateMovement(deltaTime);
+}
+
+glm::mat4 Player::RenderFromCam(int screenWidth, int screenHeight)
+{
+	glm::vec3 cameraPos = transform.GetLocation();
+	glm::mat4 view = glm::lookAt(cameraPos + (CameraDistance * -cameraFront), cameraPos, glm::vec3(0, 1, 0));
+
+	float screenWidthf = static_cast<float>(screenWidth);
+	float screenHeightf = static_cast<float>(screenHeight);
+
+	float aspect = screenWidthf / screenHeightf;
+
+	aspect = abs(aspect);
+	//std::cout << aspect << std::endl;
+
+	glm::mat4 projection = glm::perspective(glm::radians(80.f), aspect, 0.1f, 10000.0f);
+
+	return projection * view;
+}
+
 void Player::ProcessInput(GLFWwindow* window)
 {
-	if (!IsActive) return;
-
 	glm::vec3 CamFrontFixed = cameraFront;
 	CamFrontFixed.y = 0;
 	CamFrontFixed = glm::normalize(CamFrontFixed);
 
-	glm::vec3 CamRightFixed = glm::normalize(glm::cross(glm::vec3(0,1,0), cameraFront));
+	glm::vec3 CamRightFixed = glm::normalize(glm::cross(glm::vec3(0, 1, 0), cameraFront));
 	// Movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		MovementVector += CamFrontFixed;
@@ -68,18 +61,10 @@ void Player::ProcessInput(GLFWwindow* window)
 		MovementVector += CamRightFixed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		MovementVector -= CamRightFixed;
-
 }
 
-void Player::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Player::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (!IsActive) return;
-}
-
-void Player::mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	if (!IsActive) return;
-
 	if (!UseCamera) return;
 
 	if (firstMouse)
@@ -115,7 +100,6 @@ void Player::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void Player::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (!IsActive) return;
 	if (button == GLFW_MOUSE_BUTTON_RIGHT)
 	{
 		if (action == GLFW_PRESS)
@@ -134,8 +118,10 @@ void Player::MouseButtonCallback(GLFWwindow* window, int button, int action, int
 
 void Player::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	if (!IsActive) return;
-
 	float NewDistance = CameraDistance - (float)yoffset;
 	CameraDistance = glm::clamp(NewDistance, 0.f, 1000.f);
+}
+
+void Player::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
 }

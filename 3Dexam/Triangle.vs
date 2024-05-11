@@ -7,8 +7,7 @@ out vec3 ourColor; // output a color to the fragment shader
 out vec3 Normal; // output a normal to the fragment shader
 
 
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 camMat;
 uniform mat4 meshMat;
 
 
@@ -16,7 +15,7 @@ uniform mat4 meshMat;
 void main()
 {
     Normal = normalize(mat3(transpose(inverse(meshMat))) * aNormal);
-    gl_Position = projection * view * meshMat * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = camMat * meshMat * vec4(aPos.x, aPos.y, aPos.z, 1.0);
     //ourColor = aColor; // set ourColor to the input color we got from the vertex data
     ourColor = Normal; // set ourColor to the input color we got from the vertex data
 }       

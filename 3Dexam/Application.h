@@ -1,9 +1,13 @@
 #pragma once
+#include <string>
 #include <unordered_map>
+#include "Mesh.h"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Mesh.h"
-#include "Shader.h"
+#include "CameraInterface.h"
+#include "ControllerInterface.h"
+#include "EditorCamera.h"
 
 class Application
 {
@@ -19,10 +23,13 @@ public:
 	int RenderLoop();
 	int Cleanup();
 
+	EditorCamera* editorCamera = nullptr;
 
-
+	CameraInterface* currentCamera = nullptr;
+	ControllerInterface* currentController = nullptr;
 
 	Mesh* GetMesh(std::string name); // Used to get a mesh from the map using a string.
+	Shader* GetShader(std::string name); // Used to get a shader from the map using a string.
 
 	void ShaderSetup(); // Used for creating all shaders used in the project.
 	void MeshSetup(); // Used for creating all meshes and objects used in the game.
@@ -35,6 +42,7 @@ public:
 	void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void ProcessInput(GLFWwindow* window);
 
 private:
 	// -- Utility -- //
@@ -42,5 +50,7 @@ private:
 	float deltaTime = 0;
 	float lastFrame = 0;
 	void CalculateDeltaTime();
+
+	bool UseWireframe = false;
 };
 

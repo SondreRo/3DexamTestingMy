@@ -1,4 +1,8 @@
 #include "Mesh.h"
+
+#include <iostream>
+#include "Shader.h"
+
 #include "glad/glad.h"
 #include <glm/gtc/type_ptr.hpp>
 
@@ -24,7 +28,7 @@ void Mesh::Bind()
 
 }
 
-void Mesh::Draw()
+void Mesh::Draw(glm::mat4 CamMat)
 {
     if (!shader)
     {
@@ -32,6 +36,9 @@ void Mesh::Draw()
     	return;
     }
     shader->use();
+
+    glUniformMatrix4fv(glGetUniformLocation(shader->ID, "camMat"), 1, GL_FALSE, glm::value_ptr(CamMat));
+
 
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "meshMat"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
     glBindVertexArray(VAO);
@@ -47,6 +54,11 @@ void Mesh::Draw()
         //glDrawArrays(GL_POINTS, 0, vertices.size());
     }
 
+}
+
+void Mesh::Tick(float deltaTime)
+{
+    
 }
 
 void Mesh::Cleanup()
