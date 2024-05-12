@@ -3,6 +3,7 @@
 
 #include "BarycentricCalculations.h"
 #include "MeshGenerator.h"
+#include "Npc.h"
 #include "Player.h"
 #include "Shader.h"
 
@@ -38,7 +39,8 @@ int Application::Setup()
 
     // Settings
     glEnable(GL_DEPTH_TEST);
-
+    glLineWidth(5);
+    glPointSize(5);
     CallbackSetup();
 
     return 0;
@@ -67,6 +69,7 @@ int Application::RenderLoop()
         CalculateDeltaTime();
         ProcessInput(mWindow);
 
+        //std::cout << "FPS: " << (1 / deltaTime) << std::endl;
 
     	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -84,8 +87,8 @@ int Application::RenderLoop()
 	            if (Player* player = dynamic_cast<Player*>(currentController))
 	            {
                     glm::vec3 FoundLoc = player->transform.GetLocation();
-                    BarycentricCalculations::Calculate(landscape, player->transform.GetLocation() - glm::vec3(0, -1, 0), FoundLoc);
-                    player->transform.SetLocationY(FoundLoc.y + 1);
+                    if (BarycentricCalculations::Calculate(landscape, player->transform.GetLocation() - glm::vec3(0, -1, 0), FoundLoc))
+						player->transform.SetLocationY(FoundLoc.y + 1);
 	            }
             }
         }
@@ -150,13 +153,6 @@ void Application::MeshSetup()
     landscape->transform.SetLocation(glm::vec3(0));
     mMeshes["landscape"] = landscape;
 
-    // -- Cube -- //
-    Mesh* cube = new Mesh();
-    cube->shader = GetShader("Default");
-    MeshGenerator::GenerateBox(cube, glm::vec3(1));
-    cube->transform.SetLocation(glm::vec3(0));
-    mMeshes["cube"] = cube;
-
     // -- Player -- //
     Player* player = new Player();
     player->shader = GetShader("Default");
@@ -170,6 +166,20 @@ void Application::MeshSetup()
     player2->transform.SetLocation(glm::vec3(5, 0, 0));
     mMeshes["player2"] = player2;
 
+    // -- Curve -- //
+    Mesh* curve = new Mesh();
+    curve->shader = GetShader("Default");
+    MeshGenerator::GenerateCurve(curve, glm::vec3(5,5,5), glm::vec3(20,8,2),glm::vec3(15,3,20), 0.01f);
+    mMeshes["curve"] = curve;
+    MoveCurveToSurface(curve, landscape,0.2f);
+
+    // -- NPC -- //
+    Npc* npc = new Npc();
+    npc->shader = GetShader("Default");
+    MeshGenerator::GenerateBox(npc, glm::vec3(0.5f, 1.f, 0.5f));
+    mMeshes["npc"] = npc;
+    npc->pointsToFollow = curve->vertices;
+    npc->HeightOfsett = 1;
 }
 
 void Application::MeshBinding()
@@ -282,7 +292,6 @@ void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int act
                 currentController = dynamic_cast<ControllerInterface*>(player);
             }
             break;
-        
 	    }
     }
 }
@@ -297,4 +306,15 @@ void Application::CalculateDeltaTime()
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+}
+
+void Application::MoveCurveToSurface(Mesh* CurveMesh, LandscapeMesh* LandscapeMesh, float yOfsett)
+{
+    glm::vec3 newPos = glm::vec3(0);
+	for (auto& vertex : CurveMesh->vertices)
+	{
+		if (BarycentricCalculations::Calculate(LandscapeMesh, vertex.Position, newPos))
+            vertex.Position.y = newPos.y + yOfsett;
+	}
+    
 }

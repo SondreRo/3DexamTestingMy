@@ -11,8 +11,17 @@ class Mesh
 {
 	unsigned int VBO{ 0 }, VAO{ 0 }, EBO { 0 };
 
+
 	
 public:
+	virtual ~Mesh() = default;
+
+	enum MeshType
+	{
+		mt_Triangle,
+		mt_Line,
+		mt_Dot
+	};
 
 	Transform transform;
 
@@ -25,6 +34,8 @@ public:
 
 	Shader* shader;
 
+
+	MeshType meshType = mt_Triangle;
 	void Cleanup();
 };
 

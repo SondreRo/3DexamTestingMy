@@ -8,6 +8,7 @@
 #include "CameraInterface.h"
 #include "ControllerInterface.h"
 #include "EditorCamera.h"
+#include "LandscapeMesh.h"
 
 class Application
 {
@@ -52,5 +53,7 @@ private:
 	void CalculateDeltaTime();
 
 	bool UseWireframe = false;
+
+	void MoveCurveToSurface(Mesh* CurveMesh, LandscapeMesh* LandscapeMesh, float yOfsett);
 };
 

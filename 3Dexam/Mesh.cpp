@@ -43,15 +43,34 @@ void Mesh::Draw(glm::mat4 CamMat)
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "meshMat"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
     glBindVertexArray(VAO);
 
+    unsigned int tempDrawType = 0;
+
+    switch (meshType)
+    {
+    case(mt_Triangle):
+        tempDrawType = GL_TRIANGLES;
+        break;
+    case(mt_Line):
+        tempDrawType = GL_LINE_STRIP;
+        break;
+
+    case(mt_Dot):
+    	tempDrawType = GL_POINTS;
+    	break;
+    default:
+        tempDrawType = GL_TRIANGLES;
+        break;
+    }
+
+
     if (triangles.size() > 0)
     {
-        glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, 0);
+        glDrawElements(tempDrawType, triangles.size() * 3, GL_UNSIGNED_INT, 0);
     }
     else
     {
+        glDrawArrays(tempDrawType, 0, vertices.size());
        
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-        //glDrawArrays(GL_POINTS, 0, vertices.size());
     }
 
 }

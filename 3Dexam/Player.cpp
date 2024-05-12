@@ -30,7 +30,7 @@ void Player::Tick(float deltaTime)
 glm::mat4 Player::RenderFromCam(int screenWidth, int screenHeight)
 {
 	glm::vec3 cameraPos = transform.GetLocation();
-	glm::mat4 view = glm::lookAt(cameraPos + (CameraDistance * -cameraFront), cameraPos, glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(cameraPos + (CameraDistance * - cameraFront), cameraPos, glm::vec3(0, 1, 0));
 
 	float screenWidthf = static_cast<float>(screenWidth);
 	float screenHeightf = static_cast<float>(screenHeight);

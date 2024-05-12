@@ -61,6 +61,7 @@ void MeshGenerator::GenerateBox(Mesh* inMesh, glm::vec3 Size)
 	// Bottom face
 	inMesh->triangles.emplace_back(5, 4, 1);
 	inMesh->triangles.emplace_back(1, 0, 5);
+	inMesh->meshType = Mesh::mt_Triangle;
 
 }
 
@@ -146,6 +147,32 @@ void MeshGenerator::GenerateLandscape(LandscapeMesh* inMesh, int xCount, int zCo
 		Vertex.Normal = glm::normalize(Vertex.Normal);
 	}
 
+	inMesh->meshType = Mesh::mt_Triangle;
 	std::cout << "Plane created with : " << inMesh->vertices.size() << " vertices and : " << inMesh->triangles.size() << " triangles." << std::endl;
 
+}
+
+glm::vec3 MeshGenerator::Interpolate(glm::vec3 from, glm::vec3 to, float percent)
+{
+	glm::vec3 difference = to - from;
+	return from + (difference * percent);
+}
+
+void MeshGenerator::GenerateCurve(Mesh* inMesh, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float step)
+{
+	
+	for (float i = 0; i < 1; i += step)
+	{
+		// The Green Line
+		glm::vec3 Va = Interpolate(p1, p2, i);
+		glm::vec3 Vb = Interpolate(p2, p3, i);
+
+		// The Black Dot
+		glm::vec3 x = Interpolate(Va, Vb, i);
+
+		inMesh->vertices.emplace_back(x, x, x);
+
+	}
+	inMesh->meshType = Mesh::mt_Line;
+	std::cout << "Line generated with: " << inMesh->vertices.size() << " vertices\n";
 }
