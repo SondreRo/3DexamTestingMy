@@ -6,6 +6,14 @@
 #include "glad/glad.h"
 #include <glm/gtc/type_ptr.hpp>
 
+Mesh::~Mesh()
+{
+}
+
+void Mesh::AABB_CollisionResponse()
+{
+}
+
 void Mesh::Bind()
 {
    
@@ -28,8 +36,10 @@ void Mesh::Bind()
 
 }
 
-void Mesh::Draw(glm::mat4 CamMat)
+void Mesh::Draw(glm::mat4 CamMat, glm::vec3 CamPos)
 {
+    if (hidden) return;
+
     if (!shader)
     {
         std::cout << "No shader found for Mesh" << std::endl;
@@ -42,6 +52,9 @@ void Mesh::Draw(glm::mat4 CamMat)
 
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "meshMat"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
     glBindVertexArray(VAO);
+
+    glUniform3fv(glGetUniformLocation(shader->ID, "camPos"), 1, glm::value_ptr(CamPos));
+
 
     unsigned int tempDrawType = 0;
 
@@ -77,7 +90,7 @@ void Mesh::Draw(glm::mat4 CamMat)
 
 void Mesh::Tick(float deltaTime)
 {
-    
+    AABB_Position = transform.GetLocation();
 }
 
 void Mesh::Cleanup()

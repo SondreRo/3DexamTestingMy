@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ostream>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -7,6 +8,10 @@ struct Vertex
 {
 	Vertex();
 
+	friend std::ostream& operator<<(std::ostream& os, const Vertex& obj)
+	{
+		return os << "Position: " << obj.Position.x << " " << obj.Position.y << " " << obj.Position.z;
+	}
 
 	glm::vec3 Position {0.f };
 	glm::vec3 Normal{ 0.f, 1.f, 0.f };

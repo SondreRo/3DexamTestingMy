@@ -38,8 +38,9 @@ void Npc::Tick(float deltaTime)
 		//if (CurrentIndex >= pointsToFollow.size()) return;
 
 
-
 		transform.SetLocation(pointsToFollow[CurrentIndex].Position + glm::vec3(0, HeightOfsett, 0));
+
+
 
 	}
 }

@@ -11,7 +11,6 @@ uniform mat4 camMat;
 uniform mat4 meshMat;
 
 
-
 void main()
 {
     Normal = normalize(mat3(transpose(inverse(meshMat))) * aNormal);

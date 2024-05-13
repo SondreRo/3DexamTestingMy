@@ -4,8 +4,10 @@
 #include "BarycentricCalculations.h"
 #include "MeshGenerator.h"
 #include "Npc.h"
+#include "Pickups.h"
 #include "Player.h"
 #include "Shader.h"
+#include "MeshImportExport.h"
 
 int Application::Setup()
 {
@@ -26,7 +28,7 @@ int Application::Setup()
     }
     glfwMakeContextCurrent(mWindow);
     glfwSetWindowUserPointer(mWindow, this);
-
+    glfwSwapInterval(0);
 
 
     // glad: load all OpenGL function pointers
@@ -61,7 +63,7 @@ int Application::Run()
 int Application::RenderLoop()
 {
     editorCamera = new EditorCamera();
-    currentCamera = editorCamera;
+		 currentCamera = editorCamera;
     currentController = editorCamera;
 
     while (!glfwWindowShouldClose(mWindow))
@@ -91,7 +93,11 @@ int Application::RenderLoop()
 						player->transform.SetLocationY(FoundLoc.y + 1);
 	            }
             }
+
+          
         }
+        CollisionCheck();
+
 
         glm::mat4 camMat{ 1 };
         if (currentCamera) 
@@ -105,7 +111,6 @@ int Application::RenderLoop()
         }
 
 
-
     	glfwSwapBuffers(mWindow);
         glfwPollEvents();
     }
@@ -116,6 +121,37 @@ int Application::Cleanup()
 {
     glfwTerminate();
     return 1;
+}
+
+void Application::CollisionCheck()
+{
+    for (auto& mesh : mMeshes)
+    {
+        if (AABBCollisionInterface* Collider1 = dynamic_cast<AABBCollisionInterface*>(mesh.second))
+        {
+            if (Collider1->AABB_Enabled)
+            {
+                for (auto& mesh2 : mMeshes)
+                {
+                    if (AABBCollisionInterface* Collider2 = dynamic_cast<AABBCollisionInterface*>(mesh2.second))
+                    {
+                        if (Collider2->AABB_Enabled)
+                        {
+                            if (Collider1 != Collider2)
+                            {
+                                if (CollisionCalculation::AABBCheck(Collider1, Collider2))
+                                {
+                                    std::cout << "Collision between " << mesh.first << " and " << mesh2.first << std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+           
+        }
+    }
+  
 }
 
 Mesh* Application::GetMesh(std::string name)
@@ -153,11 +189,14 @@ void Application::MeshSetup()
     landscape->transform.SetLocation(glm::vec3(0));
     mMeshes["landscape"] = landscape;
 
+    //MeshImportExport::WriteFile("Landscape", landscape);
+
     // -- Player -- //
     Player* player = new Player();
     player->shader = GetShader("Default");
     MeshGenerator::GenerateBox(player, glm::vec3(0.5f, 1.f, 0.5f));
     mMeshes["player"] = player;
+
 
     // -- Player2 -- //
     Player* player2 = new Player();
@@ -180,6 +219,34 @@ void Application::MeshSetup()
     mMeshes["npc"] = npc;
     npc->pointsToFollow = curve->vertices;
     npc->HeightOfsett = 1;
+    npc->transform.SetLocation(glm::vec3(- 5.f, -5.f, -5.f));
+
+    // -- Pickups -- //
+    Pickups* pickup = new Pickups();
+    pickup->shader = GetShader("Default");
+    MeshGenerator::GenerateBox(pickup, glm::vec3(0.2f));
+    mMeshes["pickup1"] = pickup;
+    pickup->transform.SetLocation(glm::vec3(5, 1, 9));
+
+
+    // -- Pickups -- //
+    Pickups* pickup2 = new Pickups();
+    pickup2->shader = GetShader("Default");
+    MeshGenerator::GenerateBox(pickup2, glm::vec3(2.f));
+    mMeshes["pickup2"] = pickup2;
+    pickup2->transform.SetLocation(glm::vec3(3, 1, 20));
+
+    // -- Pickups -- //
+    Pickups* pickup3 = new Pickups();
+    pickup3->shader = GetShader("Default");
+    MeshGenerator::GenerateBox(pickup3, glm::vec3(1.f));
+    mMeshes["pickup3"] = pickup3;
+    pickup3->transform.SetLocation(glm::vec3(6, 1, 15));
+	//Mesh* randomMesh = new Mesh();
+ //   MeshImportExport::ReadFile("Landscape.txt", randomMesh);
+	//randomMesh->shader = GetShader("Default");
+	//mMeshes["randomMesh"] = randomMesh;
+	//randomMesh->transform.SetLocation(glm::vec3(10, 10, 10));
 }
 
 void Application::MeshBinding()

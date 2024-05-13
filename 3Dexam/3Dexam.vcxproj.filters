@@ -72,6 +72,12 @@
     <ClCompile Include="Npc.cpp">
       <Filter>Source Files\GameObjects</Filter>
     </ClCompile>
+    <ClCompile Include="Pickups.cpp">
+      <Filter>Source Files\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshImportExport.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\GLFW\glfw3.h">
@@ -136,6 +142,15 @@
     </ClInclude>
     <ClInclude Include="Npc.h">
       <Filter>Header Files\GameObjets</Filter>
+    </ClInclude>
+    <ClInclude Include="Pickups.h">
+      <Filter>Header Files\GameObjets</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshImportExport.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionCalculation.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

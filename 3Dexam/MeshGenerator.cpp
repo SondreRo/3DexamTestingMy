@@ -1,6 +1,8 @@
 #include "MeshGenerator.h"
 #include <iostream>
 
+#include "CollisionCalculation.h"
+
 
 float MeshGenerator::Function(float x, float z)
 {
@@ -25,6 +27,8 @@ void MeshGenerator::GenerateBox(Mesh* inMesh, glm::vec3 Size)
 {
 	
 	std::vector<Vertex> tempVertex;
+
+	Size /= 2;
 
 	tempVertex.emplace_back(glm::vec3(-Size.x, -Size.y, Size.z), glm::vec3(-Size.x, -Size.y, Size.z), glm::vec3(-Size.x, -Size.y, Size.z));
 	tempVertex.emplace_back(glm::vec3(Size.x, -Size.y, Size.z), glm::vec3(Size.x, -Size.y, Size.z), glm::vec3(Size.x, -Size.y, Size.z));
@@ -62,6 +66,14 @@ void MeshGenerator::GenerateBox(Mesh* inMesh, glm::vec3 Size)
 	inMesh->triangles.emplace_back(5, 4, 1);
 	inMesh->triangles.emplace_back(1, 0, 5);
 	inMesh->meshType = Mesh::mt_Triangle;
+
+	if (AABBCollisionInterface* collider = dynamic_cast<AABBCollisionInterface*>(inMesh))
+	{
+		collider->AABB_Position = inMesh->transform.GetLocation();
+		collider->AABB_Size = Size;//* 2.f;
+		collider->AABB_Enabled = true;
+		std::cout << "Added AABB to mesh" << std::endl;
+	}
 
 }
 

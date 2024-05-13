@@ -21,6 +21,7 @@ class Player : public Mesh, public CameraInterface, public ControllerInterface
 	bool UseCamera = false;
 public:
 
+	
 	float MovementSpeed = 5.f;
 	bool UpdateMovement(float DeltaTime);
 

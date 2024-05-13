@@ -139,7 +139,9 @@
     <ClCompile Include="LandscapeMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshGenerator.cpp" />
+    <ClCompile Include="MeshImportExport.cpp" />
     <ClCompile Include="Npc.cpp" />
+    <ClCompile Include="Pickups.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderFileLoader.cpp" />
@@ -148,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="BarycentricCalculations.h" />
+    <ClInclude Include="CollisionCalculation.h" />
     <ClInclude Include="ControllerInterface.h" />
     <ClInclude Include="EditorCamera.h" />
     <ClInclude Include="CameraInterface.h" />
@@ -160,7 +163,9 @@
     <ClInclude Include="LandscapeMesh.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshGenerator.h" />
+    <ClInclude Include="MeshImportExport.h" />
     <ClInclude Include="Npc.h" />
+    <ClInclude Include="Pickups.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderFileLoader.h" />

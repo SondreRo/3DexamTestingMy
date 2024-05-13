@@ -24,6 +24,8 @@ public:
 	int RenderLoop();
 	int Cleanup();
 
+	void CollisionCheck();
+
 	EditorCamera* editorCamera = nullptr;
 
 	CameraInterface* currentCamera = nullptr;
