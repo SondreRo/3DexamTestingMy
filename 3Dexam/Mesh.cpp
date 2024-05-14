@@ -6,6 +6,11 @@
 #include "glad/glad.h"
 #include <glm/gtc/type_ptr.hpp>
 
+Mesh::Mesh()
+{
+    material = new Material();
+}
+
 Mesh::~Mesh()
 {
 }
@@ -34,6 +39,8 @@ void Mesh::Bind()
 
     Vertex::Binding();
 
+
+
 }
 
 void Mesh::Draw(glm::mat4 CamMat, glm::vec3 CamPos)
@@ -53,8 +60,23 @@ void Mesh::Draw(glm::mat4 CamMat, glm::vec3 CamPos)
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "meshMat"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
     glBindVertexArray(VAO);
 
-    glUniform3fv(glGetUniformLocation(shader->ID, "camPos"), 1, glm::value_ptr(CamPos));
+    unsigned int CamPosPos = glGetUniformLocation(shader->ID, "viewPos");
+    glUniform3fv(CamPosPos, 1, glm::value_ptr(CamPos));
 
+
+    if (texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture->ID);
+        shader->setInt("useTexture", 1);
+        //std::cout << "rendering texture\n";
+
+    }
+    else
+    {
+        shader->setInt("useTexture", 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+    }
 
     unsigned int tempDrawType = 0;
 
@@ -75,6 +97,10 @@ void Mesh::Draw(glm::mat4 CamMat, glm::vec3 CamPos)
         break;
     }
 
+    if (material)
+    {
+        material->UseMaterial(shader);
+    }
 
     if (triangles.size() > 0)
     {

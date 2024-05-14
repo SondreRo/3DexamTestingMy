@@ -23,12 +23,54 @@ glm::vec3 MeshGenerator::CalcNormal(Vertex& p1, Vertex& p2, Vertex& p3)
 	return glm::normalize(cross);
 }
 
+void MeshGenerator::GenerateTriangle(Mesh* inMesh, glm::vec3 Size)
+{
+	Vertex P1 = glm::vec3(-Size.x, -Size.y, 0.f);
+	P1.TextureCoord = glm::vec2(0.f, 0.f);
+
+	Vertex P2 = glm::vec3(Size.x, -Size.y, 0.f);
+	P2.TextureCoord = glm::vec2(1.f, 0.f);
+
+	Vertex P3 = glm::vec3(0, Size.y, 0);
+	P3.TextureCoord = glm::vec2(0.5f, 1.f);
+
+	inMesh->vertices.push_back(P1);
+	inMesh->vertices.push_back(P2);
+	inMesh->vertices.push_back(P3);
+
+	inMesh->triangles.emplace_back(0, 1, 2);
+}
+
+void MeshGenerator::GenerateSquare(Mesh* inMesh, glm::vec3 Size)
+{
+	Vertex P1 = glm::vec3(-Size.x, -Size.y, 0.f);
+	P1.TextureCoord = glm::vec2(0.f, 0.f);
+
+	Vertex P2 = glm::vec3(Size.x, -Size.y, 0.f);
+	P2.TextureCoord = glm::vec2(1.f, 0.f);
+
+	Vertex P3 = glm::vec3(Size.x, Size.y, 0);
+	P3.TextureCoord = glm::vec2(1.f, 1.f);
+
+	Vertex P4 = glm::vec3(-Size.x, Size.y, 0);
+	P4.TextureCoord = glm::vec2(0.f, 1.f);
+
+	inMesh->vertices.push_back(P1);
+	inMesh->vertices.push_back(P2);
+	inMesh->vertices.push_back(P3);
+	inMesh->vertices.push_back(P4);
+
+	inMesh->triangles.emplace_back(0, 1, 2);
+	inMesh->triangles.emplace_back(2, 3, 0);
+	inMesh->meshType = Mesh::mt_Triangle;
+}
+
 void MeshGenerator::GenerateBox(Mesh* inMesh, glm::vec3 Size)
 {
 	
 	std::vector<Vertex> tempVertex;
 
-	Size /= 2;
+	//Size /= 2;
 
 	tempVertex.emplace_back(glm::vec3(-Size.x, -Size.y, Size.z), glm::vec3(-Size.x, -Size.y, Size.z), glm::vec3(-Size.x, -Size.y, Size.z));
 	tempVertex.emplace_back(glm::vec3(Size.x, -Size.y, Size.z), glm::vec3(Size.x, -Size.y, Size.z), glm::vec3(Size.x, -Size.y, Size.z));

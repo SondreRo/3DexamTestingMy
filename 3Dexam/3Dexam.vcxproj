@@ -137,6 +137,7 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="LandscapeMesh.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshGenerator.cpp" />
     <ClCompile Include="MeshImportExport.cpp" />
@@ -145,6 +146,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderFileLoader.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +163,7 @@
     <ClInclude Include="includes\glm\mat4x3.hpp" />
     <ClInclude Include="includes\KHR\khrplatform.h" />
     <ClInclude Include="LandscapeMesh.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshGenerator.h" />
     <ClInclude Include="MeshImportExport.h" />
@@ -169,6 +172,8 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderFileLoader.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vertex.h" />

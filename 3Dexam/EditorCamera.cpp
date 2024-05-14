@@ -33,9 +33,11 @@ void EditorCamera::Tick(float deltaTime)
 	DirectionVector = glm::vec3(0);
 }
 
-glm::mat4 EditorCamera::RenderFromCam(int screenWidth, int screenHeight)
+
+glm::mat4 EditorCamera::RenderFromCam(int screenWidth, int screenHeight, glm::vec3& camPos)
 {
 	RecalculateDirections();
+	camPos = cameraPos;
 
 	glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 

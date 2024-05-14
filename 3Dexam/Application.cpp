@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "Shader.h"
 #include "MeshImportExport.h"
+#include "TextureLoader.h"
 
 int Application::Setup()
 {
@@ -28,7 +29,7 @@ int Application::Setup()
     }
     glfwMakeContextCurrent(mWindow);
     glfwSetWindowUserPointer(mWindow, this);
-    glfwSwapInterval(0);
+    //glfwSwapInterval(0);
 
 
     // glad: load all OpenGL function pointers
@@ -100,14 +101,15 @@ int Application::RenderLoop()
 
 
         glm::mat4 camMat{ 1 };
-        if (currentCamera) 
-            camMat = currentCamera->RenderFromCam(SCR_WIDTH, SCR_HEIGHT);
+        glm::vec3 camPos{ 0 };
+        if (currentCamera)
+            camMat = currentCamera->RenderFromCam(SCR_WIDTH, SCR_HEIGHT, camPos);
 
         // Looping through all meshes and rendering them
         for (auto& mesh : mMeshes)
         {
             
-            mesh.second->Draw(camMat);
+            mesh.second->Draw(camMat, camPos);
         }
 
 
@@ -156,6 +158,7 @@ void Application::CollisionCheck()
 
 Mesh* Application::GetMesh(std::string name)
 {
+
     if (mMeshes.count(name) > 0)
     {
         return mMeshes[name];
@@ -185,7 +188,7 @@ void Application::MeshSetup()
     // -- Landscape -- //
     LandscapeMesh* landscape = new LandscapeMesh();
     landscape->shader = GetShader("Default");
-    MeshGenerator::GenerateLandscape(landscape, 100, 100, 0.25);
+    MeshGenerator::GenerateLandscape(landscape, 200, 200, 0.2);
     landscape->transform.SetLocation(glm::vec3(0));
     mMeshes["landscape"] = landscape;
 
@@ -242,6 +245,16 @@ void Application::MeshSetup()
     MeshGenerator::GenerateBox(pickup3, glm::vec3(1.f));
     mMeshes["pickup3"] = pickup3;
     pickup3->transform.SetLocation(glm::vec3(6, 1, 15));
+
+    // -- Triangle -- //
+    Mesh* triangle = new Mesh();
+    triangle->shader = GetShader("Default");
+   // MeshGenerator::GenerateTriangle(triangle, glm::vec3(1));
+    MeshGenerator::GenerateSquare(triangle, glm::vec3(1));
+    mMeshes["triangle"] = triangle;
+    triangle->transform.SetLocation(glm::vec3(5, 5, 0));
+    triangle->texture = TextureLoader::ImportImage("Obama.jpg");
+    triangle->material->diffuse = glm::vec3(1);
 	//Mesh* randomMesh = new Mesh();
  //   MeshImportExport::ReadFile("Landscape.txt", randomMesh);
 	//randomMesh->shader = GetShader("Default");

@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "CollisionCalculation.h"
+#include "Material.h"
+#include "Texture.h"
 #include "Transform.h"
 #include "Vertex.h"
 #include "Triangle.h"
@@ -16,7 +18,9 @@ class Mesh : public AABBCollisionInterface
 
 	
 public:
+	Mesh();
 	virtual ~Mesh();
+
 
 	friend std::ostream& operator<<(std::ostream& os, const Mesh& obj)
 	{
@@ -38,11 +42,13 @@ public:
 
 	std::vector<Vertex> vertices;
 	std::vector<Triangle> triangles;
+	Texture* texture;
 
 	void Bind();
 	void Draw(glm::mat4 CamMat, glm::vec3 CamPos);
 	virtual void Tick(float deltaTime);
 
+	Material* material;
 	Shader* shader;
 
 	bool hidden = false;

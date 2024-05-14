@@ -16,21 +16,26 @@ struct Vertex
 	glm::vec3 Position {0.f };
 	glm::vec3 Normal{ 0.f, 1.f, 0.f };
 	glm::vec3 Color {1.f};
+	glm::vec2 TextureCoord{ 0 };
 	
 
 	static void Binding()
 	{
 		// position attribute
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
 		// normal attribute
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(1);
 
 		// color attribute
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,11 * sizeof(float), (void*)(6 * sizeof(float)));
 		glEnableVertexAttribArray(2);
+
+		// color attribute
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
+		glEnableVertexAttribArray(3);
 	}
 
 	// -- Constructors with types -- //

@@ -30,7 +30,7 @@ public:
 	glm::vec3 DirectionVector = glm::vec3(0);
 
 	// -- Camera Interface -- //
-	glm::mat4 RenderFromCam(int screenWidth, int screenHeight) override;
+	glm::mat4 RenderFromCam(int screenWidth, int screenHeight, glm::vec3& camPos) override;
 
 	// -- Controller Interface -- //
 	void ProcessInput(GLFWwindow* window) override;

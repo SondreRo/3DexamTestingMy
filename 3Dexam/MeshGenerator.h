@@ -7,6 +7,10 @@ class MeshGenerator
 	static glm::vec3 CalcNormal(Vertex& p1, Vertex& p2, Vertex& p3);
 public:
 
+	static void GenerateTriangle(Mesh* inMesh, glm::vec3 Size);
+
+	static void GenerateSquare(Mesh* inMesh, glm::vec3 Size);
+
 	static void GenerateBox(Mesh* inMesh, glm::vec3 Size);
 
 	static void GenerateLandscape(LandscapeMesh* inMesh, int xCount, int zCount, float stepSize);
